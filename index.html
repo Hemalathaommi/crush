@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crush Matcher</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        #crushForm {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #matchResult {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+            #crushForm {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Crush Matcher</h2>
+    <form id="crushForm">
+        <label for="userName">Your Name:</label>
+        <input type="text" id="userName" name="userName" required><br><br>
+        
+        <label for="crushName">Your Crush's Name:</label>
+        <input type="text" id="crushName" name="crushName" required><br><br>
+        
+        <button type="button" onclick="calculateMatch()">Calculate Match</button>
+        <p>YOU WANT TO KNOW YOUR LOVE PERCENTAGE</p>
+    </form>
+
+    <div id="matchResult"></div>
+
+    <script>
+        function calculateMatch() {
+            const userName = document.getElementById("userName").value.toLowerCase();
+            const crushName = document.getElementById("crushName").value.toLowerCase();
+            const userSet = new Set(userName);
+            const crushSet = new Set(crushName);
+            const commonLetters = [...userSet].filter(letter => crushSet.has(letter));
+            const matchPercentage = (commonLetters.length / userSet.size) * 100;
+            const resultText = `Match Percentage: ${matchPercentage.toFixed(2)}%`;
+            document.getElementById("matchResult").textContent = resultText;
+
+            // Submit form data to PHP script for storing in database
+            const formData = new FormData();
+            formData.append("userName", userName);
+            formData.append("crushName", crushName);
+            formData.append("matchPercentage", matchPercentage);
+
+            fetch("store_names.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Names stored successfully!");
+                } else {
+                    console.error("Failed to store names.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        }
+    </script>
+</body>
+</html>
